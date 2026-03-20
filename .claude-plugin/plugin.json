@@ -1,0 +1,10 @@
+{
+  "name": "security-audit",
+  "version": "1.1.0",
+  "description": "Enterprise-grade security audit skill for Claude Code. Performs comprehensive SAST, secrets detection, dependency auditing, IaC review, API security, and auto-remediation across any codebase with PDF report generation.",
+  "author": "Security Audit Plugin",
+  "license": "MIT",
+  "repository": "https://github.com/security-audit-skill/claude-code-plugin",
+  "skills": ["skills/security-audit/SKILL.md"],
+  "agents": ["agents/security-scanner.md"]
+}
