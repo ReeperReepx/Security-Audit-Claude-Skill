@@ -757,14 +757,23 @@ For each finding, record: file, line, severity, description, CWE, remediation.
 
 **Steps:**
 
-### 9-pre. Cross-phase deduplication
+### 9-pre. Cross-phase deduplication and confidence filtering
 
-Before scoring, deduplicate findings across all phases. The same vulnerability may be detected by multiple phases (e.g., CORS wildcard found by Phase 2 Config and Phase 4 SAST). Deduplication rules:
+**Step 1: Deduplicate** across all phases. The same vulnerability may be detected by multiple phases (e.g., CORS wildcard found by Phase 2 Config and Phase 4 SAST):
 
 1. **Same file + same line** → keep only the finding from the most specific phase (e.g., Phase 7 Auth over Phase 4 SAST for an auth issue)
 2. **Same vulnerability type + different files** → keep all (they're separate instances)
 3. **Same concept at different specificity** → keep the more specific finding (e.g., "Missing RLS on users table" over "Missing authorization middleware")
 4. **CORS/headers found in both Phase 2 and Phase 4** → keep the Phase 2 finding (that's the dedicated config phase); mark as already-covered in Phase 4
+
+**Step 2: Confidence scoring** — assign a confidence level (1-10) to each finding based on:
+- **10**: Exact pattern match with verified context (e.g., private key found, hardcoded AWS key with AKIA prefix)
+- **8-9**: Strong pattern match with supporting context (e.g., SQL concatenation with `req.params` in a route handler)
+- **6-7**: Pattern match but context is ambiguous (e.g., `eval()` found but may be in build tool config)
+- **4-5**: Weak indicator (e.g., missing a header that might be set at the proxy level)
+- **1-3**: Speculative / informational only
+
+**Only include findings with confidence >= 7 in the main report.** Findings with confidence 4-6 go in an appendix section "Lower Confidence Findings" for manual review. Findings below 4 are dropped.
 
 ### 9a. Score and classify findings
 
@@ -835,15 +844,74 @@ Read the report template from `skills/security-audit/assets/report-template.md` 
 
 1. **Executive Summary**: Overall risk rating, total findings by severity, stack summary, top 3 critical findings
 2. **Phase Results**: Status icon and finding count for each phase
-3. **Findings by Severity**: Each finding as a box-drawing card with file:line, CWE, CVSS score, snippet, description, remediation, and status (auto-fixed / manual)
-4. **Compliance Mapping**: Table mapping each finding to CWE/OWASP/SOC2/PCI-DSS/HIPAA
-5. **Remediation Summary**: What was auto-fixed vs. what needs manual attention, with follow-up actions
-6. **Dependency Audit**: Summary of CVE findings from Phase 3
-7. **Secrets Scan**: Summary with masked values from Phase 6
-8. **IaC Review**: Summary of infrastructure findings from Phase 5
-9. **Re-audit Instructions**: How to verify fixes
+3. **Positive Security Practices**: List things the project does RIGHT — this balances the report and acknowledges good work:
+   - Proper password hashing detected (bcrypt/argon2)
+   - HTTPS enforced / TLS configured correctly
+   - Dependencies up to date / lockfile committed
+   - Auth middleware present on sensitive routes
+   - Input validation library in use (Zod, Joi, Pydantic, etc.)
+   - Structured logging configured
+   - RLS enabled on all tables (BaaS)
+   - Security headers present (helmet, CSP, etc.)
+   - Secrets stored in environment variables (not hardcoded)
+   - Any other security best practice observed during scanning
+4. **Findings by Severity**: Each finding as a box-drawing card with file:line, CWE, CVSS score, confidence level, snippet, description, remediation, and status (auto-fixed / manual)
+5. **Lower Confidence Findings**: Findings with confidence 4-6 listed separately for manual review
+6. **Compliance Mapping**: Table mapping each finding to CWE/OWASP/SOC2/PCI-DSS/HIPAA/GDPR
+7. **Remediation Summary**: What was auto-fixed vs. what needs manual attention, with follow-up actions
+8. **Dependency Audit**: Summary of CVE findings from Phase 3
+9. **Secrets Scan**: Summary with masked values from Phase 6
+10. **IaC Review**: Summary of infrastructure findings from Phase 5
+11. **Re-audit Instructions**: How to verify fixes
 
 Write the completed report to `SECURITY-AUDIT-REPORT.md` in the project root. If the file already exists, overwrite it (it's a generated artifact).
+
+### 9d. Generate remediation tickets
+
+For each finding with severity High or Critical, create an actionable ticket file in `docs/security-tickets/`:
+
+```
+docs/security-tickets/
+├── CRITICAL-001-sql-injection-users-api.md
+├── CRITICAL-002-service-role-key-exposed.md
+├── HIGH-001-missing-rls-orders-table.md
+├── HIGH-002-stripe-webhook-no-verification.md
+└── ...
+```
+
+Each ticket file follows this format:
+```
+# [SEVERITY-NNN] Short Title
+
+**Severity:** Critical | High
+**CVSS:** X.X
+**CWE:** CWE-XXX
+**File:** path/to/file.js:42
+**Confidence:** X/10
+**Found:** <audit date>
+**Status:** OPEN
+
+## Description
+<detailed explanation of the vulnerability>
+
+## Steps to Reproduce
+1. <step>
+2. <step>
+
+## Recommended Fix
+<code example or guidance>
+
+## Compliance Impact
+- OWASP: <category>
+- PCI-DSS: <requirement>
+- SOC 2: <criteria>
+- GDPR: <article>
+
+## References
+- <links to CWE, OWASP, or relevant documentation>
+```
+
+This makes findings assignable in team workflows. When `/security-audit recheck` runs, it updates the Status field to RESOLVED for fixed tickets.
 
 ---
 

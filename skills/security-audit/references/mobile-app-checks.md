@@ -369,20 +369,48 @@ Reference file for mobile app security across React Native, Flutter, Expo, Swift
 
 ## Detection Quick Reference
 
-| Category | Grep Pattern | Platform | Severity |
-|---|---|---|---|
-| Hardcoded keys | `(api[_-]?key\|secret\|token)\s*[:=]\s*['"][A-Za-z0-9]{16,}` | All | Critical |
-| AsyncStorage secrets | `AsyncStorage\.setItem.*(?i)(token\|password\|secret)` | React Native | Critical |
-| UserDefaults secrets | `UserDefaults\.standard\.set.*(?i)(token\|password)` | iOS | Critical |
-| Debuggable release | `android:debuggable\s*=\s*"true"` | Android | Critical |
-| ATS disabled | `NSAllowsArbitraryLoads.*true` | iOS | High |
-| allowBackup | `android:allowBackup\s*=\s*"true"` | Android | High |
-| No cert pinning | `fetch\(\|axios\.\|http\.get` without pinning wrapper | All | High |
-| JS interface | `addJavascriptInterface\(` | Android | High |
-| WebView file access | `allowFileAccess\s*=\s*\{true\}` | React Native | Critical |
-| Exported component | `android:exported\s*=\s*"true"` without permission | Android | Critical |
-| Cleartext traffic | `cleartextTrafficPermitted\s*=\s*"true"` | Android | High |
-| Missing minify | `minifyEnabled\s+false` in release | Android | Medium |
-| Missing CSP | `<html` without `Content-Security-Policy` | Capacitor | Critical |
-| Clipboard secrets | `Clipboard\.(setString\|setData\|write).*(?i)(token\|password)` | All | Medium |
-| URL token leak | `\?.*(?:token\|api_key\|password)=` | All | Critical |
+> **Note:** Patterns below use `|` for alternation. In the table, `OR` is used instead of `|` to avoid markdown conflicts. When using these in Grep, replace `OR` with `|`.
+
+```
+# Hardcoded keys (All platforms) — Critical
+(api[_-]?key|secret|token)\s*[:=]\s*['"][A-Za-z0-9]{16,}
+
+# AsyncStorage secrets (React Native) — Critical
+AsyncStorage\.setItem.*(token|password|secret)
+
+# UserDefaults secrets (iOS) — Critical
+UserDefaults\.standard\.set.*(token|password)
+
+# Debuggable release (Android) — Critical
+android:debuggable\s*=\s*"true"
+
+# ATS disabled (iOS) — High
+NSAllowsArbitraryLoads.*true
+
+# allowBackup (Android) — High
+android:allowBackup\s*=\s*"true"
+
+# No cert pinning (All) — High
+(fetch\(|axios\.|http\.get)  # Check these exist without pinning wrapper
+
+# JS interface (Android) — High
+addJavascriptInterface\(
+
+# WebView file access (React Native) — Critical
+allowFileAccess\s*=\s*\{true\}
+
+# Exported component (Android) — Critical
+android:exported\s*=\s*"true"
+
+# Cleartext traffic (Android) — High
+cleartextTrafficPermitted\s*=\s*"true"
+
+# Missing minify (Android) — Medium
+minifyEnabled\s+false
+
+# Clipboard secrets (All) — Medium
+Clipboard\.(setString|setData|write).*(token|password)
+
+# URL token leak (All) — Critical
+\?.*(token|api_key|password)=
+```

@@ -1,6 +1,6 @@
 # Compliance Mapping Reference
 
-Reference file for Phase 9 (Report & Remediation). Maps security findings to CWE, OWASP Top 10, SOC 2, HIPAA, and PCI-DSS frameworks.
+Reference file for Phase 9 (Report & Remediation). Maps security findings to CWE, OWASP Top 10, SOC 2, HIPAA, PCI-DSS, and GDPR frameworks.
 
 ---
 
@@ -225,36 +225,87 @@ Reference file for Phase 9 (Report & Remediation). Maps security findings to CWE
 
 ---
 
+## GDPR (General Data Protection Regulation) Mapping
+
+### Article 5 — Principles Relating to Processing of Personal Data
+
+| GDPR Requirement | Related Findings |
+|---|---|
+| Art. 5(1)(f) — Integrity and confidentiality | Data exposure, PII in logs, missing encryption |
+| Art. 5(1)(c) — Data minimisation | Excessive data collection, missing data minimisation |
+| Art. 5(1)(e) — Storage limitation | PII in logs without retention policy |
+
+### Article 25 — Data Protection by Design and by Default
+
+| GDPR Requirement | Related Findings |
+|---|---|
+| Art. 25(1) — Data protection by design | Missing input validation, missing data minimisation |
+| Art. 25(2) — Data protection by default | Excessive data collection, overly permissive defaults |
+
+### Article 32 — Security of Processing
+
+| GDPR Requirement | Related Findings |
+|---|---|
+| Art. 32(1)(a) — Encryption | Weak crypto, missing TLS, missing encryption at rest |
+| Art. 32(1)(b) — Confidentiality and integrity | Missing access controls, broken authentication, IDOR |
+| Art. 32(1)(c) — Availability and resilience | Missing monitoring, no redundancy indicators |
+| Art. 32(1)(d) — Testing and evaluation | Missing security testing, no security scanning in CI |
+| Art. 32(2) — Risk-appropriate security | Missing logging, insufficient audit trail |
+
+### Article 33/34 — Breach Notification
+
+| GDPR Requirement | Related Findings |
+|---|---|
+| Art. 33(1) — Notification to supervisory authority | Missing monitoring, no alerting, insufficient logging |
+| Art. 34(1) — Communication to data subject | Missing incident response indicators, no breach detection |
+
+### Article 35 — Data Protection Impact Assessment (DPIA)
+
+| GDPR Requirement | Related Findings |
+|---|---|
+| Art. 35(1) — DPIA requirement | Missing security assessments, no risk analysis documentation |
+| Art. 35(7) — Assessment content | Missing threat modelling, no data flow documentation |
+
+### Articles 44–49 — International Transfers
+
+| GDPR Requirement | Related Findings |
+|---|---|
+| Art. 44 — General principle for transfers | Data sent to third-party APIs without adequacy checks |
+| Art. 46 — Appropriate safeguards | Missing data processing agreements, no transfer impact assessment |
+| Art. 49 — Derogations | Unvalidated cross-border data flows, no user consent for transfers |
+
+---
+
 ## Quick Reference: Finding → Compliance
 
 Use this table when generating the compliance mapping section of the report:
 
-| Finding Type | CWE | OWASP | SOC 2 | PCI-DSS | HIPAA |
-|---|---|---|---|---|---|
-| SQL Injection | 89 | A03 | CC6.1 | 6.2.1 | §164.312(a)(1) |
-| XSS | 79 | A03 | CC6.1 | 6.2.4 | §164.312(a)(1) |
-| Command Injection | 78 | A03 | CC6.1 | 6.2.1 | §164.312(a)(1) |
-| Missing Auth | 862 | A01 | CC6.1 | 8.3.1 | §164.312(a)(1) |
-| Broken Auth | 287 | A07 | CC6.1 | 8.3.1 | §164.312(d) |
-| IDOR | 639 | A01 | CC6.3 | 7.2.1 | §164.312(a)(1) |
-| CSRF | 352 | A01 | CC6.1 | 6.2.4 | §164.312(c)(1) |
-| SSRF | 918 | A10 | CC6.7 | 6.2.1 | §164.312(a)(1) |
-| Path Traversal | 22 | A01 | CC6.7 | 6.2.1 | §164.312(a)(1) |
-| Hardcoded Secrets | 798 | A02 | CC6.1 | 3.5.1 | §164.312(a)(1) |
-| Weak Crypto | 327 | A02 | CC6.1 | 4.2.1 | §164.312(e)(1) |
-| Weak Password Hash | 328 | A02 | CC6.1 | 8.3.6 | §164.312(d) |
-| Missing TLS | 319 | A02 | CC6.6 | 4.2.1 | §164.312(e)(1) |
-| Debug Mode | 489 | A05 | CC6.1 | 2.2.1 | §164.312(a)(1) |
-| Missing Headers | 693 | A05 | CC6.6 | 6.4.1 | §164.312(a)(1) |
-| CORS Misconfig | 942 | A05 | CC6.6 | 6.4.1 | §164.312(a)(1) |
-| Insecure Cookie | 614 | A05 | CC6.1 | 4.2.2 | §164.312(e)(1) |
-| Vulnerable Deps | 1035 | A06 | CC6.8 | 6.3.1 | §164.308(a)(5) |
-| Deserialization | 502 | A08 | CC6.1 | 6.2.1 | §164.312(a)(1) |
-| Missing Logging | 778 | A09 | CC7.2 | 10.2.1 | §164.312(b) |
-| PII in Logs | 532 | A09 | CC7.1 | 3.4.1 | §164.312(b) |
-| Default Creds | 1392 | A07 | CC6.1 | 8.2.1 | §164.312(a)(2)(i) |
-| Missing MFA | — | A07 | CC6.1 | 8.4.2 | §164.312(d) |
-| Session Issues | 384 | A07 | CC6.1 | 8.3.1 | §164.312(d) |
-| XXE | 611 | A05 | CC6.1 | 6.2.1 | §164.312(a)(1) |
-| Missing Rate Limit | — | A04 | CC6.1 | 8.3.4 | §164.312(a)(1) |
-| Privilege Escalation | 269 | A01 | CC6.2 | 7.2.1 | §164.312(a)(1) |
+| Finding Type | CWE | OWASP | SOC 2 | PCI-DSS | HIPAA | GDPR |
+|---|---|---|---|---|---|---|
+| SQL Injection | 89 | A03 | CC6.1 | 6.2.1 | §164.312(a)(1) | Art. 25(1), 32(1)(b) |
+| XSS | 79 | A03 | CC6.1 | 6.2.4 | §164.312(a)(1) | Art. 25(1), 32(1)(b) |
+| Command Injection | 78 | A03 | CC6.1 | 6.2.1 | §164.312(a)(1) | Art. 25(1), 32(1)(b) |
+| Missing Auth | 862 | A01 | CC6.1 | 8.3.1 | §164.312(a)(1) | Art. 32(1)(b) |
+| Broken Auth | 287 | A07 | CC6.1 | 8.3.1 | §164.312(d) | Art. 32(1)(b) |
+| IDOR | 639 | A01 | CC6.3 | 7.2.1 | §164.312(a)(1) | Art. 32(1)(b) |
+| CSRF | 352 | A01 | CC6.1 | 6.2.4 | §164.312(c)(1) | Art. 32(1)(b) |
+| SSRF | 918 | A10 | CC6.7 | 6.2.1 | §164.312(a)(1) | Art. 32(1)(b) |
+| Path Traversal | 22 | A01 | CC6.7 | 6.2.1 | §164.312(a)(1) | Art. 32(1)(b) |
+| Hardcoded Secrets | 798 | A02 | CC6.1 | 3.5.1 | §164.312(a)(1) | Art. 32(1)(a) |
+| Weak Crypto | 327 | A02 | CC6.1 | 4.2.1 | §164.312(e)(1) | Art. 32(1)(a) |
+| Weak Password Hash | 328 | A02 | CC6.1 | 8.3.6 | §164.312(d) | Art. 32(1)(a) |
+| Missing TLS | 319 | A02 | CC6.6 | 4.2.1 | §164.312(e)(1) | Art. 32(1)(a) |
+| Debug Mode | 489 | A05 | CC6.1 | 2.2.1 | §164.312(a)(1) | Art. 25(2) |
+| Missing Headers | 693 | A05 | CC6.6 | 6.4.1 | §164.312(a)(1) | Art. 32(1)(b) |
+| CORS Misconfig | 942 | A05 | CC6.6 | 6.4.1 | §164.312(a)(1) | Art. 32(1)(b) |
+| Insecure Cookie | 614 | A05 | CC6.1 | 4.2.2 | §164.312(e)(1) | Art. 32(1)(a) |
+| Vulnerable Deps | 1035 | A06 | CC6.8 | 6.3.1 | §164.308(a)(5) | Art. 32(1)(d) |
+| Deserialization | 502 | A08 | CC6.1 | 6.2.1 | §164.312(a)(1) | Art. 25(1), 32(1)(b) |
+| Missing Logging | 778 | A09 | CC7.2 | 10.2.1 | §164.312(b) | Art. 33(1), 32(2) |
+| PII in Logs | 532 | A09 | CC7.1 | 3.4.1 | §164.312(b) | Art. 5(1)(f), 5(1)(c) |
+| Default Creds | 1392 | A07 | CC6.1 | 8.2.1 | §164.312(a)(2)(i) | Art. 32(1)(b) |
+| Missing MFA | — | A07 | CC6.1 | 8.4.2 | §164.312(d) | Art. 32(1)(b) |
+| Session Issues | 384 | A07 | CC6.1 | 8.3.1 | §164.312(d) | Art. 32(1)(b) |
+| XXE | 611 | A05 | CC6.1 | 6.2.1 | §164.312(a)(1) | Art. 25(1), 32(1)(b) |
+| Missing Rate Limit | — | A04 | CC6.1 | 8.3.4 | §164.312(a)(1) | Art. 32(1)(b) |
+| Privilege Escalation | 269 | A01 | CC6.2 | 7.2.1 | §164.312(a)(1) | Art. 32(1)(b) |

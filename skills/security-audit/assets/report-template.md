@@ -69,6 +69,21 @@
 
 ---
 
+## Positive Security Practices
+
+{{POSITIVE_PRACTICES}}
+
+<!-- List things the project does well:
+- ✅ Passwords hashed with bcrypt (cost factor 12)
+- ✅ HTTPS enforced with HSTS header
+- ✅ Dependencies up to date — no known CVEs
+- ✅ Input validation using Zod on all API routes
+- ✅ Secrets stored in environment variables
+- etc.
+-->
+
+---
+
 ## Findings by Severity
 
 ### 🔴 Critical
@@ -110,10 +125,18 @@
 
 ---
 
+## Lower Confidence Findings (Manual Review)
+
+These findings have a confidence score of 4-6/10. They may be false positives or require additional context to evaluate.
+
+{{LOWER_CONFIDENCE_FINDINGS}}
+
+---
+
 ## Compliance Mapping
 
-| Finding | CWE | OWASP Top 10 | SOC 2 | PCI-DSS | HIPAA |
-|---|---|---|---|---|---|
+| Finding | CWE | OWASP Top 10 | SOC 2 | PCI-DSS | HIPAA | GDPR |
+|---|---|---|---|---|---|---|
 {{COMPLIANCE_TABLE}}
 
 ---
@@ -131,6 +154,12 @@
 ### 📋 Recommended Follow-Up Actions
 
 {{FOLLOWUP_ACTIONS}}
+
+### 🎫 Remediation Tickets Generated
+
+{{TICKET_COUNT}} tickets created in `docs/security-tickets/`:
+
+{{TICKET_LIST}}
 
 ---
 
