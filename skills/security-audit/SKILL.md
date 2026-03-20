@@ -73,12 +73,65 @@ For each phase, **read the phase instruction file** before executing it. Phase f
 | 10 | `phases/phase-10-pdf.md` | PDF/HTML report generation |
 
 **Workflow:**
-1. Read and execute Phase 1 → produces STACK_PROFILE
-2. Display platform detection card → show user what was detected
-3. For each subsequent phase (2–8): read the phase file, execute it, collect findings
-4. After Phase 8: read and execute Phase 9 → score, remediate, generate report + tickets
-5. Read and execute Phase 10 → generate PDF/HTML
-6. Display final summary
+
+```
+Phase 1 (sequential — must run first)
+  │
+  ▼
+Phases 2-8 (PARALLEL — launch as 7 simultaneous sub-agents)
+  │
+  ▼
+Phase 9 (sequential — needs all findings from 2-8)
+  │
+  ▼
+Phase 10 (sequential — needs report from 9)
+```
+
+1. **Phase 1 — sequential.** Read `phases/phase-1-discovery.md` and execute it. This produces the STACK_PROFILE. Display the platform detection card.
+
+2. **Phases 2–8 — PARALLEL.** Launch each as a separate Agent sub-task simultaneously. Each agent receives the STACK_PROFILE and its phase instructions. Use the Agent tool with **multiple calls in a single response** to run all 7 in parallel:
+
+   For each phase (2 through 8), invoke the Agent tool with this prompt pattern:
+   ```
+   You are running Phase N of a security audit.
+
+   STACK_PROFILE:
+   <paste the full STACK_PROFILE from Phase 1>
+
+   INSTRUCTIONS:
+   <paste the contents of phases/phase-N-*.md>
+
+   FALSE_POSITIVE_RULES:
+   Read and apply skills/security-audit/references/false-positives.md before confirming any finding.
+
+   Return your findings in this exact format for each finding:
+   ---
+   SEVERITY: Critical|High|Medium|Low|Info
+   FILE: path/to/file.js:42
+   CWE: CWE-XXX
+   CHECK: check-name
+   CONFIDENCE: N/10
+   SNIPPET: <1-3 lines of code>
+   DESCRIPTION: <what the issue is>
+   REMEDIATION: <how to fix it>
+   ---
+
+   If no findings, return: NO_FINDINGS
+   ```
+
+   Skip phases per the Phase Skip Rules below. Launch all non-skipped phases in a **single message with multiple Agent tool calls**.
+
+3. **Collect results.** When all agents complete, merge their findings into a single list.
+
+4. **Phase 9 — sequential.** Read `phases/phase-9-report.md` and execute it with the merged findings. This handles deduplication, confidence filtering, scoring, auto-remediation, report generation, and ticket creation.
+
+5. **Phase 10 — sequential.** Read `phases/phase-10-pdf.md` and execute it. Generate PDF or HTML.
+
+6. **Display final summary.**
+
+### Why parallel?
+
+Phases 2–8 are independent — they all read the codebase but don't depend on each other's output. Running them in parallel can reduce audit time by 3-5x on large projects. Phase 9 is the only phase that needs all findings collected.
 
 ### Phase skip rules
 
